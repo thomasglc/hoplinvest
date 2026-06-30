@@ -33,11 +33,23 @@ export const useInvestmentsStore = defineStore('investments', () => {
       .sort((a, b) => a.key.localeCompare(b.key))
   })
 
+  // Each point carries cumulative invested, cumulative shares, and the weighted
+  // average execution price of that month's transactions (= real ETF price at purchase time).
   const cumulativeChartData = computed(() => {
-    let cumulative = 0
+    let cumInvested = 0
+    let cumShares = 0
     return monthlyGroups.value.map(g => {
-      cumulative += g.totalInvested
-      return { x: g.key, invested: parseFloat(cumulative.toFixed(2)) }
+      cumInvested += g.totalInvested
+      cumShares += g.totalShares
+      const weightedAvgPrice = g.totalShares > 0
+        ? g.transactions.reduce((s, t) => s + t.quantity * t.executionPrice, 0) / g.totalShares
+        : 0
+      return {
+        x: g.key,
+        invested: parseFloat(cumInvested.toFixed(2)),
+        shares: cumShares,
+        avgPrice: parseFloat(weightedAvgPrice.toFixed(4))
+      }
     })
   })
 

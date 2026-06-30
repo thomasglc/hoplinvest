@@ -51,12 +51,21 @@ const filteredData = computed(() => {
     if (m > 12) { m = 1; y++ }
   }
 
-  // For each month, carry forward the last known cumulative invested amount
+  // For each month, carry forward the last known values.
+  // Carry-forward months use currentPrice as price proxy (best estimate we have).
+  const currentPrice = settings.currentPrice ?? 0
   return keys
     .map(key => {
+      const actual = allData.find(d => d.x === key)
+      if (actual) return actual
       const prior = allData.filter(d => d.x <= key)
-      const invested = prior.length ? prior.at(-1)!.invested : 0
-      return { x: key, invested }
+      const last = prior.at(-1)
+      return {
+        x: key,
+        invested: last?.invested ?? 0,
+        shares: last?.shares ?? 0,
+        avgPrice: currentPrice // use current price for months without transactions
+      }
     })
     .filter(d => d.invested > 0) // skip months before the first ever investment
 })
@@ -71,13 +80,16 @@ const series = computed(() => {
     return [{ name: 'Investi', data: investedSeries }]
   }
 
-  const totalGain = investments.totalShares * settings.currentPrice - investments.totalInvested
-  const latestInvested = investments.cumulativeChartData.at(-1)?.invested ?? 1
-
+  // Real gain at each point: cumulative_shares × price_at_that_month − cumulative_invested
+  // price_at_that_month = weighted avg execution price of that month's transactions (= real ETF price)
+  // For carry-forward months (no transactions): currentPrice is used instead
   const gainSeries = data.map(d => ({
     x: d.x,
-    y: parseFloat(((d.invested / latestInvested) * totalGain).toFixed(2))
+    y: parseFloat(Math.max(0, d.shares * d.avgPrice - d.invested).toFixed(2))
   }))
+
+  const hasGain = gainSeries.some(p => p.y > 0)
+  if (!hasGain) return [{ name: 'Investi', data: investedSeries }]
 
   return [
     { name: 'Investi', data: investedSeries },
