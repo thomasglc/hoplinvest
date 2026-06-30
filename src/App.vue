@@ -25,8 +25,8 @@ const showNav = () => route.path !== '/login'
 </script>
 
 <template>
-  <div class="min-h-screen">
-    <main class="max-w-md mx-auto px-4 pt-6 pb-24">
+  <div style="min-height: 100dvh">
+    <main class="max-w-md mx-auto px-4 pb-24" style="padding-top: max(1.5rem, env(safe-area-inset-top))">
       <RouterView />
     </main>
     <BottomNav v-if="showNav()" />
