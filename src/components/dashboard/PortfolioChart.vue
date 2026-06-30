@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, shallowRef } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import type { ApexOptions } from 'apexcharts'
 import { useInvestmentsStore } from '../../stores/investments'
@@ -62,18 +62,32 @@ const series = computed(() => {
   ]
 })
 
-const options: ApexOptions = {
-  chart: { type: 'area', stacked: true, background: 'transparent', toolbar: { show: false }, zoom: { enabled: false } },
-  colors: ['#7c3aed', '#10b981'],
-  fill: { type: 'gradient', gradient: { opacityFrom: 0.65, opacityTo: 0.08 } },
-  stroke: { curve: 'smooth', width: 2 },
-  xaxis: { type: 'category', labels: { style: { colors: '#6b7280', fontSize: '10px' } }, axisBorder: { show: false }, axisTicks: { show: false } },
-  yaxis: { labels: { style: { colors: '#6b7280', fontSize: '10px' }, formatter: (v: number) => `${(v / 1000).toFixed(0)}k€` } },
-  grid: { borderColor: '#ffffff12' },
-  legend: { labels: { colors: '#9ca3af' } },
-  tooltip: { theme: 'dark', y: { formatter: (v: number) => `${v.toLocaleString('fr-FR')} €` } },
-  dataLabels: { enabled: false }
+// Recalculate Y-axis min when period changes so the chart zooms in
+const options = shallowRef<ApexOptions>(buildOptions(0))
+
+function buildOptions(yMin: number): ApexOptions {
+  const yFormatter = (v: number) =>
+    Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${Math.round(v)}€`
+
+  return {
+    chart: { type: 'area', stacked: true, background: 'transparent', toolbar: { show: false }, zoom: { enabled: false } },
+    colors: ['#7c3aed', '#10b981'],
+    fill: { type: 'gradient', gradient: { opacityFrom: 0.65, opacityTo: 0.08 } },
+    stroke: { curve: 'smooth', width: 2 },
+    xaxis: { type: 'category', labels: { style: { colors: '#6b7280', fontSize: '10px' } }, axisBorder: { show: false }, axisTicks: { show: false } },
+    yaxis: { min: yMin, labels: { style: { colors: '#6b7280', fontSize: '10px' }, formatter: yFormatter } },
+    grid: { borderColor: '#ffffff12' },
+    legend: { labels: { colors: '#9ca3af' } },
+    tooltip: { theme: 'dark', y: { formatter: (v: number) => `${v.toLocaleString('fr-FR')} €` } },
+    dataLabels: { enabled: false }
+  }
 }
+
+watch(filteredData, (data) => {
+  const minInvested = data.length ? Math.min(...data.map(d => d.invested)) : 0
+  const yMin = period.value === 'all' ? 0 : Math.max(0, Math.floor(minInvested * 0.95))
+  options.value = buildOptions(yMin)
+}, { immediate: true })
 </script>
 
 <template>
