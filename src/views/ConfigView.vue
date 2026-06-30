@@ -15,7 +15,6 @@ async function logout() {
 }
 
 const tickerInput = ref(settings.ticker)
-const manualPriceInput = ref<number | ''>(settings.manualPrice ?? '')
 const refreshing = ref(false)
 const refreshError = ref(false)
 
@@ -36,16 +35,6 @@ async function refreshPrice() {
 function saveTicker() {
   settings.setTicker(tickerInput.value.trim() || 'WPEA.PA')
   clearPriceCache()
-}
-
-function saveManualPrice() {
-  const val = Number(manualPriceInput.value)
-  settings.setManualPrice(val > 0 ? val : null)
-}
-
-function clearManualPrice() {
-  manualPriceInput.value = ''
-  settings.setManualPrice(null)
 }
 
 function fmtDatetime(iso: string | null): string {
@@ -94,32 +83,6 @@ function fmtDatetime(iso: string | null): string {
       </div>
       <p v-if="refreshError" class="text-red-400 text-xs mt-1">Impossible de récupérer le prix</p>
       <p class="text-gray-600 text-xs">Dernière mise à jour : {{ fmtDatetime(settings.lastFetchedAt) }}</p>
-      <p v-if="settings.manualPrice" class="text-amber-400 text-xs mt-1">⚠ Prix manuel actif — le prix affiché est le vôtre</p>
-    </div>
-
-    <!-- Manual price override -->
-    <div class="glass-card p-4">
-      <label class="text-gray-400 text-xs uppercase tracking-widest block mb-2">Prix manuel (€) — optionnel</label>
-      <div class="flex gap-2">
-        <input
-          v-model.number="manualPriceInput"
-          type="number"
-          min="0.0001"
-          step="0.0001"
-          placeholder="ex: 6.3892"
-          class="flex-1 bg-transparent text-white text-base outline-none placeholder-gray-600"
-        />
-        <button
-          @click="saveManualPrice"
-          class="px-3 py-1 text-sm rounded-lg bg-violet-600/40 text-violet-300 hover:bg-violet-600/60 transition"
-        >Sauver</button>
-        <button
-          v-if="settings.manualPrice"
-          @click="clearManualPrice"
-          class="px-3 py-1 text-sm rounded-lg bg-red-600/30 text-red-400 hover:bg-red-600/50 transition"
-        >✕</button>
-      </div>
-      <p class="text-gray-600 text-xs mt-2">Utilisé si l'API Yahoo Finance est indisponible</p>
     </div>
 
     <!-- Import link -->

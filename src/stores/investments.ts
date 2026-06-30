@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import {
   createItem, createItems, readItems, deleteItem
 } from '@directus/sdk'
-import { getClient, toTransaction, toDirectusTransaction } from '../services/directus'
+import { apiRequest, toTransaction, toDirectusTransaction } from '../services/directus'
 import type { Transaction, MonthGroup, MonthStatus } from '../types'
 
 export const useInvestmentsStore = defineStore('investments', () => {
@@ -73,7 +73,7 @@ export const useInvestmentsStore = defineStore('investments', () => {
   async function fetchTransactions(): Promise<void> {
     loadingData.value = true
     try {
-      const items = await getClient().request(
+      const items = await apiRequest(
         readItems('transactions', {
           sort: ['date'],
           limit: -1
@@ -86,7 +86,7 @@ export const useInvestmentsStore = defineStore('investments', () => {
   }
 
   async function addTransaction(tx: Transaction): Promise<void> {
-    const created = await getClient().request(
+    const created = await apiRequest(
       createItem('transactions', toDirectusTransaction(tx))
     )
     transactions.value.push(toTransaction(created as any))
@@ -94,14 +94,14 @@ export const useInvestmentsStore = defineStore('investments', () => {
 
   async function addTransactions(txs: Transaction[]): Promise<void> {
     if (!txs.length) return
-    const created = await getClient().request(
+    const created = await apiRequest(
       createItems('transactions', txs.map(toDirectusTransaction))
     )
     transactions.value.push(...(created as any[]).map(toTransaction))
   }
 
   async function removeTransaction(id: string): Promise<void> {
-    await getClient().request(deleteItem('transactions', Number(id)))
+    await apiRequest(deleteItem('transactions', Number(id)))
     transactions.value = transactions.value.filter(t => t.id !== id)
   }
 

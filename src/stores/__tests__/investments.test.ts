@@ -4,7 +4,7 @@ import type { Transaction } from '../../types'
 
 // Mock Directus so store actions don't make real HTTP calls in tests
 vi.mock('../../services/directus', () => ({
-  directus: {},
+  apiRequest: vi.fn(),
   toTransaction: (d: any) => d,
   toDirectusTransaction: (t: any) => t
 }))

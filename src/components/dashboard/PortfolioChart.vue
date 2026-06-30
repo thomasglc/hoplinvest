@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import type { ApexOptions } from 'apexcharts'
 import { useInvestmentsStore } from '../../stores/investments'
@@ -7,6 +7,15 @@ import { useSettingsStore } from '../../stores/settings'
 
 const investments = useInvestmentsStore()
 const settings = useSettingsStore()
+
+// Debounce the price used in the chart so an incoming HTTP response
+// doesn't interrupt the initial draw animation (speed: 900ms).
+const chartPrice = ref<number | null>(settings.currentPrice)
+let priceTimer: ReturnType<typeof setTimeout> | null = null
+watch(() => settings.currentPrice, (newPrice) => {
+  if (priceTimer) clearTimeout(priceTimer)
+  priceTimer = setTimeout(() => { chartPrice.value = newPrice }, 1050)
+})
 
 type Period = 'all' | 'year' | 'quarter' | 'month'
 
@@ -23,26 +32,11 @@ const now = new Date()
 const currentYear = now.getFullYear()
 const currentMonth = now.getMonth() + 1
 const currentQuarter = Math.ceil(currentMonth / 3)
+const todayLabel = now.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-// Generate a complete month-by-month timeline for the selected period.
-// Months without transactions carry forward the last known cumulative value
-// so the chart shows a flat line instead of a gap.
-const filteredData = computed(() => {
-  const allData = investments.cumulativeChartData
-  if (!allData.length) return []
-  if (period.value === 'all') return allData
-
-  let startMonth: number
-  switch (period.value) {
-    case 'year':    startMonth = 1; break
-    case 'quarter': startMonth = (currentQuarter - 1) * 3 + 1; break
-    case 'month':   startMonth = currentMonth; break
-    default:        startMonth = 1
-  }
-
-  // All YYYY-MM keys from period start to today
+function buildMonthKeys(startMonth: number): string[] {
   const keys: string[] = []
   let y = currentYear, m = startMonth
   while (y < currentYear || (y === currentYear && m <= currentMonth)) {
@@ -50,24 +44,46 @@ const filteredData = computed(() => {
     m++
     if (m > 12) { m = 1; y++ }
   }
-
-  // For each month, carry forward the last known values.
-  // Carry-forward months use currentPrice as price proxy (best estimate we have).
-  const currentPrice = settings.currentPrice ?? 0
   return keys
-    .map(key => {
-      const actual = allData.find(d => d.x === key)
-      if (actual) return actual
-      const prior = allData.filter(d => d.x <= key)
-      const last = prior.at(-1)
-      return {
-        x: key,
-        invested: last?.invested ?? 0,
-        shares: last?.shares ?? 0,
-        avgPrice: currentPrice // use current price for months without transactions
-      }
-    })
-    .filter(d => d.invested > 0) // skip months before the first ever investment
+}
+
+// Generate a complete month-by-month timeline for the selected period.
+// Always appends a "today" point at the end using the live price so the chart
+// always reaches today, even if the last investment was months ago.
+const filteredData = computed(() => {
+  const allData = investments.cumulativeChartData
+  if (!allData.length) return []
+
+  const currentPrice = chartPrice.value ?? 0
+
+  let base: typeof allData
+  if (period.value === 'all') {
+    base = allData
+  } else {
+    let startMonth: number
+    switch (period.value) {
+      case 'year':    startMonth = 1; break
+      case 'quarter': startMonth = (currentQuarter - 1) * 3 + 1; break
+      case 'month':   startMonth = currentMonth; break
+      default:        startMonth = 1
+    }
+    base = buildMonthKeys(startMonth)
+      .map(key => {
+        const actual = allData.find(d => d.x === key)
+        if (actual) return actual
+        const last = allData.filter(d => d.x <= key).at(-1)
+        return { x: key, invested: last?.invested ?? 0, shares: last?.shares ?? 0, avgPrice: currentPrice }
+      })
+      .filter(d => d.invested > 0)
+  }
+
+  // Always append a "today" point with the live price
+  const last = base.at(-1)
+  if (!last || !currentPrice) return base
+  const todayPoint = { x: todayLabel, invested: last.invested, shares: last.shares, avgPrice: currentPrice }
+  // Don't duplicate if last point is already "today"
+  if (last.x === todayLabel) return base
+  return [...base, todayPoint]
 })
 
 const series = computed(() => {
@@ -76,7 +92,7 @@ const series = computed(() => {
 
   const investedSeries = data.map(d => ({ x: d.x, y: d.invested }))
 
-  if (!settings.currentPrice || investments.totalInvested === 0) {
+  if (!chartPrice.value || investments.totalInvested === 0) {
     return [{ name: 'Investi', data: investedSeries }]
   }
 
@@ -101,8 +117,8 @@ const series = computed(() => {
 const options = computed((): ApexOptions => {
   const data = filteredData.value
   const minInvested = data.length ? Math.min(...data.map(d => d.invested)) : 0
-  // For sub-'all' periods, zoom in on Y axis so variation is visible
-  const yMin = period.value === 'all' ? 0 : Math.max(0, Math.floor(minInvested * 0.95))
+  // Always zoom Y axis so the curve fills the chart — prevents the "spring from bottom" animation glitch
+  const yMin = Math.max(0, Math.floor(minInvested * 0.90))
 
   const yFormatter = (v: number) =>
     Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${Math.round(v)}€`
@@ -114,7 +130,12 @@ const options = computed((): ApexOptions => {
       background: 'transparent',
       toolbar: { show: false },
       zoom: { enabled: false },
-      animations: { enabled: true, speed: 300 }
+      animations: {
+        enabled: true,
+        speed: 900,
+        animateGradually: { enabled: false },
+        dynamicAnimation: { enabled: true, speed: 600 }
+      }
     },
     colors: ['#7c3aed', '#10b981'],
     fill: { type: 'gradient', gradient: { opacityFrom: 0.65, opacityTo: 0.08 } },
@@ -138,8 +159,8 @@ const options = computed((): ApexOptions => {
 </script>
 
 <template>
-  <div class="glass-card p-4 mb-4">
-    <div class="flex items-center justify-between mb-3">
+  <div class="glass-card p-4 mb-4 flex flex-col h-full">
+    <div class="flex items-center justify-between mb-3 shrink-0">
       <p class="text-gray-400 text-[10px] uppercase tracking-widest">Évolution du portefeuille</p>
       <div class="flex gap-1">
         <button
@@ -155,18 +176,20 @@ const options = computed((): ApexOptions => {
     </div>
 
     <!-- :key force le re-mount complet d'ApexCharts à chaque changement de filtre -->
-    <VueApexCharts
-      v-if="series.length"
-      :key="period"
-      type="area"
-      height="180"
-      :options="options"
-      :series="series"
-    />
-    <p v-else class="text-gray-500 text-sm text-center py-10">
-      {{ investments.cumulativeChartData.length
-        ? 'Aucune transaction sur cette période'
-        : 'Importe des transactions pour voir le graphique' }}
-    </p>
+    <div class="flex-1 min-h-0">
+      <VueApexCharts
+        v-if="series.length"
+        :key="period"
+        type="area"
+        height="100%"
+        :options="options"
+        :series="series"
+      />
+      <p v-else class="text-gray-500 text-sm text-center py-10">
+        {{ investments.cumulativeChartData.length
+          ? 'Aucune transaction sur cette période'
+          : 'Importe des transactions pour voir le graphique' }}
+      </p>
+    </div>
   </div>
 </template>

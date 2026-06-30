@@ -14,7 +14,7 @@ const currentMonthAlert = computed(() =>
 </script>
 
 <template>
-  <div>
+  <div class="flex flex-col" style="min-height: calc(100svh - 7.5rem)">
     <div class="flex items-center justify-between mb-6">
       <span class="text-violet-300 text-xs font-bold uppercase tracking-widest">HoplInvest</span>
       <PriceChip />
@@ -27,6 +27,6 @@ const currentMonthAlert = computed(() =>
     </div>
     <PortfolioCard />
     <StatsCards />
-    <PortfolioChart />
+    <PortfolioChart class="flex-1 min-h-0" />
   </div>
 </template>

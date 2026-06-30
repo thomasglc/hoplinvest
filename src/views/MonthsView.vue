@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useInvestmentsStore } from '../stores/investments'
 import type { MonthStatus } from '../types'
@@ -68,9 +68,9 @@ function fmtDate(dateStr: string): string {
 </script>
 
 <template>
-  <div>
+  <div class="flex flex-col" style="min-height: calc(100svh - 7.5rem)">
     <!-- Year selector -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-6 shrink-0">
       <button
         @click="selectedYear--; selectedMonth = null"
         class="w-9 h-9 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition text-lg"
@@ -82,30 +82,34 @@ function fmtDate(dateStr: string): string {
       >›</button>
     </div>
 
-    <!-- 4×3 grid -->
-    <div class="grid grid-cols-4 gap-2 mb-4">
+    <!-- 4×3 grid — fills remaining height when no month is selected -->
+    <div
+      class="grid grid-cols-4 gap-2 mb-4"
+      :class="selectedMonth === null ? 'flex-1 grid-rows-3' : 'shrink-0'"
+    >
       <button
         v-for="m in 12"
         :key="m"
         @click="selectMonth(m)"
-        class="relative flex flex-col items-center py-3 px-1 rounded-xl border transition"
+        class="relative flex flex-col items-center justify-center px-1 rounded-xl border transition"
         :class="[
           statusStyle(getStatus(m)),
+          selectedMonth === m ? 'py-3' : 'py-0',
           selectedMonth === m ? 'ring-2 ring-violet-500/70' : ''
         ]"
       >
-        <span class="text-white/80 text-[10px] font-semibold">{{ MONTHS_FR[m - 1] }}</span>
-        <span class="text-xs my-0.5" :class="statusTextColor(getStatus(m))">{{ statusIcon(getStatus(m)) }}</span>
-        <span class="text-[9px] text-white/50 truncate w-full text-center">
-          {{ monthData(m) ? fmtEur(monthData(m)!.totalInvested).replace(' €', '€') : '—' }}
+        <span class="text-white/90 text-base font-bold">{{ MONTHS_FR[m - 1] }}</span>
+        <span class="text-2xl leading-tight" :class="statusTextColor(getStatus(m))">{{ statusIcon(getStatus(m)) }}</span>
+        <span class="text-xs font-semibold text-white/60 truncate w-full text-center mt-1">
+          {{ monthData(m) ? fmtEur(monthData(m)!.totalInvested).replace(' ', '').replace(' €', '€') : '—' }}
         </span>
       </button>
     </div>
 
-    <!-- Month detail panel / empty state -->
+    <!-- Month detail panel / empty state — grows to fill remaining space -->
     <Transition name="slide-up">
-      <div v-if="selectedMonth !== null">
-        <div v-if="selectedDetail" class="glass-card p-4">
+      <div v-if="selectedMonth !== null" class="flex-1 min-h-0">
+        <div v-if="selectedDetail" class="glass-card p-4 h-full overflow-y-auto">
           <p class="text-violet-300 text-sm font-bold mb-3">
             {{ MONTHS_FULL_FR[selectedMonth! - 1] }} {{ selectedYear }}
           </p>
@@ -137,7 +141,7 @@ function fmtDate(dateStr: string): string {
         </div>
 
         <!-- Empty state for selected month with no data -->
-        <div v-else class="glass-card p-6 text-center">
+        <div v-else class="glass-card p-6 text-center h-full flex items-center justify-center">
           <p class="text-gray-400 text-sm">Aucune transaction pour {{ MONTHS_FULL_FR[selectedMonth! - 1] }} {{ selectedYear }}</p>
         </div>
       </div>
