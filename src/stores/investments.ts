@@ -69,6 +69,4 @@ export const useInvestmentsStore = defineStore('investments', () => {
     addTransactions,
     getMonthStatus
   }
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error pinia-plugin-persistedstate types lag behind pinia v3
 }, { persist: true })

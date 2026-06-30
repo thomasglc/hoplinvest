@@ -23,6 +23,4 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   return { ticker, manualPrice, lastFetchedPrice, lastFetchedAt, currentPrice, updatePrice, setManualPrice, setTicker }
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error pinia-plugin-persistedstate types lag behind pinia v3
 }, { persist: true })

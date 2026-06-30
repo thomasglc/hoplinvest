@@ -1,5 +1,12 @@
+<script setup lang="ts">
+import BottomNav from './components/layout/BottomNav.vue'
+</script>
+
 <template>
-  <div class="min-h-screen flex items-center justify-center">
-    <h1 class="text-4xl font-bold text-purple-400">HoplInvest</h1>
+  <div class="min-h-screen">
+    <main class="max-w-md mx-auto px-4 pt-6 pb-24">
+      <RouterView />
+    </main>
+    <BottomNav />
   </div>
 </template>
