@@ -1,7 +1,7 @@
-import { createDirectus, rest, authentication } from '@directus/sdk'
+import { createDirectus, rest, staticToken } from '@directus/sdk'
 import type { Transaction } from '../types'
 
-const DIRECTUS_URL = import.meta.env.VITE_DIRECTUS_URL as string
+export const DIRECTUS_URL = import.meta.env.VITE_DIRECTUS_URL as string
 
 // ── Directus schema types ────────────────────────────────────────────────────
 
@@ -34,11 +34,28 @@ interface Schema {
   user_settings: DirectusUserSettings[]
 }
 
-// ── Client ───────────────────────────────────────────────────────────────────
+const TOKEN_KEY = 'hoplinvest_token'
 
-export const directus = createDirectus<Schema>(DIRECTUS_URL)
-  .with(authentication('json'))
-  .with(rest())
+// ── Client factory — rebuilt when token changes ───────────────────────────────
+
+export function getClient(token?: string) {
+  const t = token ?? localStorage.getItem(TOKEN_KEY) ?? ''
+  return createDirectus<Schema>(DIRECTUS_URL)
+    .with(staticToken(t))
+    .with(rest())
+}
+
+export function saveToken(token: string) {
+  localStorage.setItem(TOKEN_KEY, token)
+}
+
+export function clearToken() {
+  localStorage.removeItem(TOKEN_KEY)
+}
+
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY)
+}
 
 // ── Mappers ──────────────────────────────────────────────────────────────────
 

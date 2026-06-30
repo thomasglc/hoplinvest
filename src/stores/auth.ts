@@ -1,10 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { readMe } from '@directus/sdk'
-import { directus } from '../services/directus'
-
-// The authentication composable exposes .login()/.logout() directly on the client
-const d = directus as any
+import { DIRECTUS_URL, getClient, saveToken, clearToken, getToken } from '../services/directus'
 
 export const useAuthStore = defineStore('auth', () => {
   const userId = ref<string | null>(null)
@@ -18,13 +15,25 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     error.value = null
     try {
-      await d.login(email, password)
-      const me = await directus.request(readMe())
+      // Use fetch directly — 100% visible in devtools, no composable magic
+      const res = await fetch(`${DIRECTUS_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      if (!res.ok) {
+        error.value = 'Email ou mot de passe incorrect'
+        return false
+      }
+      const { data } = await res.json()
+      saveToken(data.access_token)
+
+      const me = await getClient(data.access_token).request(readMe())
       userId.value = me.id as string
       userEmail.value = me.email as string
       return true
-    } catch {
-      error.value = 'Email ou mot de passe incorrect'
+    } catch (e) {
+      error.value = 'Erreur de connexion — vérifie ta connexion internet'
       return false
     } finally {
       loading.value = false
@@ -32,20 +41,31 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout(): Promise<void> {
-    try { await d.logout() } catch { /* ignore */ }
+    const token = getToken()
+    if (token) {
+      try {
+        await fetch(`${DIRECTUS_URL}/auth/logout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ refresh_token: token })
+        })
+      } catch { /* ignore */ }
+    }
+    clearToken()
     userId.value = null
     userEmail.value = null
   }
 
   async function restoreSession(): Promise<boolean> {
+    const token = getToken()
+    if (!token) return false
     try {
-      // Attempt token refresh then read current user
-      try { await d.refresh() } catch { /* no stored token */ }
-      const me = await directus.request(readMe())
+      const me = await getClient(token).request(readMe())
       userId.value = me.id as string
       userEmail.value = me.email as string
       return true
     } catch {
+      clearToken()
       return false
     }
   }

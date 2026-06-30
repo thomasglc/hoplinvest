@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { createItem, readItems, updateItem } from '@directus/sdk'
-import { directus } from '../services/directus'
+import { getClient } from '../services/directus'
 
 export const useSettingsStore = defineStore('settings', () => {
   const ticker = ref('WPEA.PA')
@@ -18,7 +18,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
   async function fetchSettings(): Promise<void> {
     try {
-      const items = await directus.request(readItems('user_settings', { limit: 1 }))
+      const items = await getClient().request(readItems('user_settings', { limit: 1 }))
       if (items.length) {
         const s = items[0]
         _settingsId.value = s.id
@@ -38,9 +38,9 @@ export const useSettingsStore = defineStore('settings', () => {
       last_fetched_at: lastFetchedAt.value
     }
     if (_settingsId.value) {
-      await directus.request(updateItem('user_settings', _settingsId.value, payload))
+      await getClient().request(updateItem('user_settings', _settingsId.value, payload))
     } else {
-      const created = await directus.request(createItem('user_settings', payload))
+      const created = await getClient().request(createItem('user_settings', payload))
       _settingsId.value = (created as any).id
     }
   }
