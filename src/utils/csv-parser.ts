@@ -16,7 +16,7 @@ export function parseCSV(content: string): Transaction[] {
 
   return lines
     .slice(1)
-    .map(line => {
+    .map((line): Transaction | null => {
       const cols = line.split('\t')
       if (cols.length < 10) return null
       return {
