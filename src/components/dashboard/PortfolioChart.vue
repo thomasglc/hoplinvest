@@ -24,19 +24,42 @@ const currentYear = now.getFullYear()
 const currentMonth = now.getMonth() + 1
 const currentQuarter = Math.ceil(currentMonth / 3)
 
-function inPeriod(key: string, p: Period): boolean {
-  const [y, m] = key.split('-').map(Number)
-  switch (p) {
-    case 'all':     return true
-    case 'year':    return y === currentYear
-    case 'quarter': return y === currentYear && Math.ceil(m / 3) === currentQuarter
-    case 'month':   return y === currentYear && m === currentMonth
-  }
-}
+const pad = (n: number) => String(n).padStart(2, '0')
 
-const filteredData = computed(() =>
-  investments.cumulativeChartData.filter(d => inPeriod(d.x, period.value))
-)
+// Generate a complete month-by-month timeline for the selected period.
+// Months without transactions carry forward the last known cumulative value
+// so the chart shows a flat line instead of a gap.
+const filteredData = computed(() => {
+  const allData = investments.cumulativeChartData
+  if (!allData.length) return []
+  if (period.value === 'all') return allData
+
+  let startMonth: number
+  switch (period.value) {
+    case 'year':    startMonth = 1; break
+    case 'quarter': startMonth = (currentQuarter - 1) * 3 + 1; break
+    case 'month':   startMonth = currentMonth; break
+    default:        startMonth = 1
+  }
+
+  // All YYYY-MM keys from period start to today
+  const keys: string[] = []
+  let y = currentYear, m = startMonth
+  while (y < currentYear || (y === currentYear && m <= currentMonth)) {
+    keys.push(`${y}-${pad(m)}`)
+    m++
+    if (m > 12) { m = 1; y++ }
+  }
+
+  // For each month, carry forward the last known cumulative invested amount
+  return keys
+    .map(key => {
+      const prior = allData.filter(d => d.x <= key)
+      const invested = prior.length ? prior.at(-1)!.invested : 0
+      return { x: key, invested }
+    })
+    .filter(d => d.invested > 0) // skip months before the first ever investment
+})
 
 const series = computed(() => {
   const data = filteredData.value
