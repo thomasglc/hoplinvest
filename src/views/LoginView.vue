@@ -42,7 +42,7 @@ async function submit() {
             required
             autocomplete="email"
             placeholder="ton@email.com"
-            class="w-full bg-transparent text-white text-base outline-none placeholder-gray-700"
+            class="w-full bg-transparent text-white text-base outline-none placeholder-gray-400"
           />
         </div>
 
@@ -54,7 +54,7 @@ async function submit() {
             required
             autocomplete="current-password"
             placeholder="••••••••"
-            class="w-full bg-transparent text-white text-base outline-none placeholder-gray-700"
+            class="w-full bg-transparent text-white text-base outline-none placeholder-gray-400"
           />
         </div>
 
