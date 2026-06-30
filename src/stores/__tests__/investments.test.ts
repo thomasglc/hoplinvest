@@ -1,7 +1,23 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useInvestmentsStore } from '../investments'
 import type { Transaction } from '../../types'
+
+// Mock Directus so store actions don't make real HTTP calls in tests
+vi.mock('../../services/directus', () => ({
+  directus: {},
+  toTransaction: (d: any) => d,
+  toDirectusTransaction: (t: any) => t
+}))
+vi.mock('@directus/sdk', () => ({
+  createItem: vi.fn(),
+  createItems: vi.fn(),
+  readItems: vi.fn(),
+  deleteItem: vi.fn(),
+  readMe: vi.fn(),
+  updateItem: vi.fn()
+}))
+
+import { useInvestmentsStore } from '../investments'
 
 function mockTx(overrides: Partial<Transaction> = {}): Transaction {
   return {
@@ -24,25 +40,26 @@ describe('investments store', () => {
     setActivePinia(createPinia())
   })
 
-  it('totalShares somme toutes les quantités', () => {
+  it('totalShares somme toutes les quantités', async () => {
     const store = useInvestmentsStore()
-    store.addTransaction(mockTx({ quantity: 241 }))
-    store.addTransaction(mockTx({ quantity: 77 }))
+    // Push directly to bypass Directus in tests
+    store.transactions.push(mockTx({ quantity: 241 }))
+    store.transactions.push(mockTx({ quantity: 77 }))
     expect(store.totalShares).toBe(318)
   })
 
   it('totalInvested somme les |netAmount|', () => {
     const store = useInvestmentsStore()
-    store.addTransaction(mockTx({ netAmount: -1506.69 }))
-    store.addTransaction(mockTx({ netAmount: -479.71 }))
+    store.transactions.push(mockTx({ netAmount: -1506.69 }))
+    store.transactions.push(mockTx({ netAmount: -479.71 }))
     expect(store.totalInvested).toBeCloseTo(1986.40, 1)
   })
 
   it('monthlyGroups regroupe par YYYY-MM', () => {
     const store = useInvestmentsStore()
-    store.addTransaction(mockTx({ date: '2026-01-09' }))
-    store.addTransaction(mockTx({ date: '2026-01-29' }))
-    store.addTransaction(mockTx({ date: '2026-02-13' }))
+    store.transactions.push(mockTx({ date: '2026-01-09' }))
+    store.transactions.push(mockTx({ date: '2026-01-29' }))
+    store.transactions.push(mockTx({ date: '2026-02-13' }))
     expect(store.monthlyGroups).toHaveLength(2)
     expect(store.monthlyGroups[0].key).toBe('2026-01')
     expect(store.monthlyGroups[0].transactions).toHaveLength(2)
@@ -50,7 +67,7 @@ describe('investments store', () => {
 
   it('getMonthStatus → done si transactions existantes', () => {
     const store = useInvestmentsStore()
-    store.addTransaction(mockTx({ date: '2026-01-09' }))
+    store.transactions.push(mockTx({ date: '2026-01-09' }))
     expect(store.getMonthStatus(2026, 1)).toBe('done')
   })
 

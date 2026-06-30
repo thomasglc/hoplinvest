@@ -1,0 +1,154 @@
+<h2>Design de l'app — 3 directions visuelles</h2>
+<p class="subtitle">Même structure, ambiances différentes. Clique sur celle qui te parle le plus.</p>
+
+<div class="cards">
+
+  <!-- Option A: Dark glassmorphism -->
+  <div class="card" data-choice="dark-glass" onclick="toggleSelect(this)">
+    <div class="card-image" style="font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);border-radius:12px;padding:14px;min-height:280px;">
+      <div style="max-width:220px;margin:0 auto;">
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="color:#a78bfa;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">HoplInvest</span>
+          <span style="background:#7c3aed33;border:1px solid #7c3aed55;border-radius:20px;color:#a78bfa;font-size:10px;padding:3px 8px;">WPEA.PA 6,23€ ▲</span>
+        </div>
+        <!-- Main card -->
+        <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:14px;margin-bottom:10px;backdrop-filter:blur(10px);">
+          <div style="color:#9ca3af;font-size:10px;margin-bottom:4px;">Valeur du portefeuille</div>
+          <div style="color:white;font-size:26px;font-weight:800;letter-spacing:-1px;">127 420 €</div>
+          <div style="color:#10b981;font-size:11px;margin-top:4px;">+12 340 € · +10,7%</div>
+        </div>
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;">
+            <div style="color:#9ca3af;font-size:9px;margin-bottom:3px;">Investi</div>
+            <div style="color:white;font-size:14px;font-weight:700;">115 080 €</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;">
+            <div style="color:#9ca3af;font-size:9px;margin-bottom:3px;">Parts totales</div>
+            <div style="color:white;font-size:14px;font-weight:700;">20 451</div>
+          </div>
+        </div>
+        <!-- Chart placeholder -->
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;height:55px;display:flex;align-items:flex-end;gap:3px;">
+          <div style="flex:1;background:#6d28d9;border-radius:3px 3px 0 0;height:60%;opacity:0.8;"></div>
+          <div style="flex:1;background:#6d28d9;border-radius:3px 3px 0 0;height:70%;opacity:0.8;"></div>
+          <div style="flex:1;background:#6d28d9;border-radius:3px 3px 0 0;height:65%;opacity:0.8;"></div>
+          <div style="flex:1;background:#6d28d9;border-radius:3px 3px 0 0;height:80%;opacity:0.8;"></div>
+          <div style="flex:1;background:#7c3aed;border-radius:3px 3px 0 0;height:85%;"></div>
+          <div style="flex:1;background:#10b981;border-radius:3px 3px 0 0;height:20%;opacity:0.7;"></div>
+        </div>
+        <!-- Bottom tabs -->
+        <div style="display:flex;border-top:1px solid rgba(255,255,255,0.1);margin-top:10px;padding-top:8px;">
+          <div style="flex:1;text-align:center;color:#a78bfa;font-size:9px;">📊 Dashboard</div>
+          <div style="flex:1;text-align:center;color:#555;font-size:9px;">📅 Mois</div>
+          <div style="flex:1;text-align:center;color:#555;font-size:9px;">➕ Ajouter</div>
+          <div style="flex:1;text-align:center;color:#555;font-size:9px;">⚙️ Config</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Dark Glassmorphism</h3>
+      <p>Fond sombre dégradé, cartes translucides, très moderne et premium. Fort contraste, idéal la nuit.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Soft purple light -->
+  <div class="card" data-choice="soft-purple" onclick="toggleSelect(this)">
+    <div class="card-image" style="font-family:'Segoe UI',sans-serif;background:#f5f3ff;border-radius:12px;padding:14px;min-height:280px;">
+      <div style="max-width:220px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="color:#6d28d9;font-size:11px;font-weight:800;letter-spacing:1px;">HoplInvest</span>
+          <span style="background:#ede9fe;border-radius:20px;color:#7c3aed;font-size:10px;padding:3px 8px;font-weight:600;">6,23€ ▲</span>
+        </div>
+        <!-- Hero card -->
+        <div style="background:linear-gradient(135deg,#7c3aed,#5b21b6);border-radius:16px;padding:16px;margin-bottom:10px;color:white;">
+          <div style="font-size:10px;opacity:0.8;margin-bottom:4px;">Valeur du portefeuille</div>
+          <div style="font-size:26px;font-weight:800;letter-spacing:-1px;">127 420 €</div>
+          <div style="font-size:11px;color:#c4b5fd;margin-top:4px;">+12 340 € · +10,7%</div>
+        </div>
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div style="background:white;border-radius:10px;padding:10px;box-shadow:0 2px 8px rgba(109,40,217,0.1);">
+            <div style="color:#9ca3af;font-size:9px;margin-bottom:3px;">Investi</div>
+            <div style="color:#1f2937;font-size:14px;font-weight:700;">115 080 €</div>
+          </div>
+          <div style="background:white;border-radius:10px;padding:10px;box-shadow:0 2px 8px rgba(109,40,217,0.1);">
+            <div style="color:#9ca3af;font-size:9px;margin-bottom:3px;">Parts totales</div>
+            <div style="color:#1f2937;font-size:14px;font-weight:700;">20 451</div>
+          </div>
+        </div>
+        <!-- Chart -->
+        <div style="background:white;border-radius:10px;padding:10px;height:55px;display:flex;align-items:flex-end;gap:3px;box-shadow:0 2px 8px rgba(109,40,217,0.1);">
+          <div style="flex:1;background:#ddd6fe;border-radius:3px 3px 0 0;height:60%;"></div>
+          <div style="flex:1;background:#ddd6fe;border-radius:3px 3px 0 0;height:70%;"></div>
+          <div style="flex:1;background:#c4b5fd;border-radius:3px 3px 0 0;height:65%;"></div>
+          <div style="flex:1;background:#c4b5fd;border-radius:3px 3px 0 0;height:80%;"></div>
+          <div style="flex:1;background:#7c3aed;border-radius:3px 3px 0 0;height:85%;"></div>
+          <div style="flex:1;background:#10b981;border-radius:3px 3px 0 0;height:20%;"></div>
+        </div>
+        <!-- Tabs -->
+        <div style="display:flex;border-top:1px solid #e9d5ff;margin-top:10px;padding-top:8px;">
+          <div style="flex:1;text-align:center;color:#7c3aed;font-size:9px;font-weight:600;">📊 Dashboard</div>
+          <div style="flex:1;text-align:center;color:#9ca3af;font-size:9px;">📅 Mois</div>
+          <div style="flex:1;text-align:center;color:#9ca3af;font-size:9px;">➕ Ajouter</div>
+          <div style="flex:1;text-align:center;color:#9ca3af;font-size:9px;">⚙️ Config</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Soft Purple Light</h3>
+      <p>Fond clair, carte hero violette vibrante, cartes blanches. Aéré, lisible, élégant. Bon pour usage quotidien.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Dark purple solid -->
+  <div class="card" data-choice="dark-solid" onclick="toggleSelect(this)">
+    <div class="card-image" style="font-family:'Segoe UI',sans-serif;background:#1e1b2e;border-radius:12px;padding:14px;min-height:280px;">
+      <div style="max-width:220px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="color:white;font-size:11px;font-weight:800;letter-spacing:1px;">HoplInvest</span>
+          <span style="background:#2d2a45;border-radius:20px;color:#a78bfa;font-size:10px;padding:3px 8px;">6,23€ ▲</span>
+        </div>
+        <!-- Main card solid -->
+        <div style="background:#7c3aed;border-radius:16px;padding:16px;margin-bottom:10px;">
+          <div style="color:#ddd6fe;font-size:10px;margin-bottom:4px;">Valeur du portefeuille</div>
+          <div style="color:white;font-size:26px;font-weight:800;letter-spacing:-1px;">127 420 €</div>
+          <div style="color:#c4b5fd;font-size:11px;margin-top:4px;">+12 340 € · +10,7%</div>
+        </div>
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div style="background:#2d2a45;border-radius:10px;padding:10px;">
+            <div style="color:#6b7280;font-size:9px;margin-bottom:3px;">Investi</div>
+            <div style="color:white;font-size:14px;font-weight:700;">115 080 €</div>
+          </div>
+          <div style="background:#2d2a45;border-radius:10px;padding:10px;">
+            <div style="color:#6b7280;font-size:9px;margin-bottom:3px;">Parts totales</div>
+            <div style="color:white;font-size:14px;font-weight:700;">20 451</div>
+          </div>
+        </div>
+        <!-- Chart -->
+        <div style="background:#2d2a45;border-radius:10px;padding:10px;height:55px;display:flex;align-items:flex-end;gap:3px;">
+          <div style="flex:1;background:#4c1d95;border-radius:3px 3px 0 0;height:60%;"></div>
+          <div style="flex:1;background:#4c1d95;border-radius:3px 3px 0 0;height:70%;"></div>
+          <div style="flex:1;background:#5b21b6;border-radius:3px 3px 0 0;height:65%;"></div>
+          <div style="flex:1;background:#6d28d9;border-radius:3px 3px 0 0;height:80%;"></div>
+          <div style="flex:1;background:#7c3aed;border-radius:3px 3px 0 0;height:85%;"></div>
+          <div style="flex:1;background:#10b981;border-radius:3px 3px 0 0;height:20%;"></div>
+        </div>
+        <!-- Tabs -->
+        <div style="display:flex;border-top:1px solid #2d2a45;margin-top:10px;padding-top:8px;">
+          <div style="flex:1;text-align:center;color:#a78bfa;font-size:9px;">📊 Dashboard</div>
+          <div style="flex:1;text-align:center;color:#444;font-size:9px;">📅 Mois</div>
+          <div style="flex:1;text-align:center;color:#444;font-size:9px;">➕ Ajouter</div>
+          <div style="flex:1;text-align:center;color:#444;font-size:9px;">⚙️ Config</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Dark Solid Purple</h3>
+      <p>Fond sombre uni, carte hero violet franc. Entre les deux — sombre mais pas translucide, très lisible.</p>
+    </div>
+  </div>
+
+</div>

@@ -1,9 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import {
+  createItem, createItems, readItems, deleteItem
+} from '@directus/sdk'
+import { directus, toTransaction, toDirectusTransaction } from '../services/directus'
 import type { Transaction, MonthGroup, MonthStatus } from '../types'
 
 export const useInvestmentsStore = defineStore('investments', () => {
   const transactions = ref<Transaction[]>([])
+  const loadingData = ref(false)
+
+  // ── Computed ──────────────────────────────────────────────────────────────
 
   const totalShares = computed(() =>
     transactions.value.reduce((sum, t) => sum + t.quantity, 0)
@@ -33,8 +40,6 @@ export const useInvestmentsStore = defineStore('investments', () => {
       .sort((a, b) => a.key.localeCompare(b.key))
   })
 
-  // Each point carries cumulative invested, cumulative shares, and the weighted
-  // average execution price of that month's transactions (= real ETF price at purchase time).
   const cumulativeChartData = computed(() => {
     let cumInvested = 0
     let cumShares = 0
@@ -53,14 +58,6 @@ export const useInvestmentsStore = defineStore('investments', () => {
     })
   })
 
-  function addTransaction(tx: Transaction): void {
-    transactions.value.push(tx)
-  }
-
-  function addTransactions(txs: Transaction[]): void {
-    transactions.value.push(...txs)
-  }
-
   function getMonthStatus(year: number, month: number, now: Date = new Date()): MonthStatus {
     const key = `${year}-${String(month).padStart(2, '0')}`
     if (monthlyGroups.value.some(g => g.key === key)) return 'done'
@@ -71,14 +68,59 @@ export const useInvestmentsStore = defineStore('investments', () => {
     return 'missed'
   }
 
+  // ── Directus actions ──────────────────────────────────────────────────────
+
+  async function fetchTransactions(): Promise<void> {
+    loadingData.value = true
+    try {
+      const items = await directus.request(
+        readItems('transactions', {
+          sort: ['date'],
+          limit: -1
+        })
+      )
+      transactions.value = (items as any[]).map(toTransaction)
+    } finally {
+      loadingData.value = false
+    }
+  }
+
+  async function addTransaction(tx: Transaction): Promise<void> {
+    const created = await directus.request(
+      createItem('transactions', toDirectusTransaction(tx))
+    )
+    transactions.value.push(toTransaction(created as any))
+  }
+
+  async function addTransactions(txs: Transaction[]): Promise<void> {
+    if (!txs.length) return
+    const created = await directus.request(
+      createItems('transactions', txs.map(toDirectusTransaction))
+    )
+    transactions.value.push(...(created as any[]).map(toTransaction))
+  }
+
+  async function removeTransaction(id: string): Promise<void> {
+    await directus.request(deleteItem('transactions', Number(id)))
+    transactions.value = transactions.value.filter(t => t.id !== id)
+  }
+
+  function clearLocal(): void {
+    transactions.value = []
+  }
+
   return {
     transactions,
+    loadingData,
     totalShares,
     totalInvested,
     monthlyGroups,
     cumulativeChartData,
+    getMonthStatus,
+    fetchTransactions,
     addTransaction,
     addTransactions,
-    getMonthStatus
+    removeTransaction,
+    clearLocal
   }
-}, { persist: true })
+})

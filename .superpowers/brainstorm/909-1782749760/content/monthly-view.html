@@ -1,0 +1,139 @@
+<h2>Vue mensuelle — 2 options de layout</h2>
+<p class="subtitle">Comment afficher le suivi mois par mois ?</p>
+
+<div class="cards">
+
+  <!-- Option A: Year grid with month cards -->
+  <div class="card" data-choice="grid" onclick="toggleSelect(this)">
+    <div class="card-image" style="font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);border-radius:12px;padding:14px;min-height:300px;">
+      <div style="max-width:260px;margin:0 auto;">
+        <div style="color:#a78bfa;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Suivi 2026</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
+          <!-- Jan -->
+          <div style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:8px;padding:7px;text-align:center;">
+            <div style="color:#6ee7b7;font-size:8px;font-weight:600;">Jan</div>
+            <div style="color:#10b981;font-size:14px;margin:2px 0;">✓</div>
+            <div style="color:#6ee7b7;font-size:8px;">9 977€</div>
+          </div>
+          <!-- Feb -->
+          <div style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:8px;padding:7px;text-align:center;">
+            <div style="color:#6ee7b7;font-size:8px;font-weight:600;">Fév</div>
+            <div style="color:#10b981;font-size:14px;margin:2px 0;">✓</div>
+            <div style="color:#6ee7b7;font-size:8px;">1 982€</div>
+          </div>
+          <!-- Mar -->
+          <div style="background:rgba(124,58,237,0.25);border:1px solid rgba(124,58,237,0.6);border-radius:8px;padding:7px;text-align:center;">
+            <div style="color:#c4b5fd;font-size:8px;font-weight:600;">Mar</div>
+            <div style="color:#a78bfa;font-size:14px;margin:2px 0;">✓</div>
+            <div style="color:#c4b5fd;font-size:8px;">10 031€</div>
+          </div>
+          <!-- Apr - not done -->
+          <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:7px;text-align:center;">
+            <div style="color:#fca5a5;font-size:8px;font-weight:600;">Avr</div>
+            <div style="color:#ef4444;font-size:14px;margin:2px 0;">✗</div>
+            <div style="color:#fca5a5;font-size:8px;">—</div>
+          </div>
+          <!-- May - future/neutral -->
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px;text-align:center;">
+            <div style="color:#6b7280;font-size:8px;font-weight:600;">Mai</div>
+            <div style="color:#374151;font-size:14px;margin:2px 0;">·</div>
+            <div style="color:#6b7280;font-size:8px;">—</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px;text-align:center;">
+            <div style="color:#6b7280;font-size:8px;font-weight:600;">Juin</div>
+            <div style="color:#374151;font-size:14px;margin:2px 0;">·</div>
+            <div style="color:#6b7280;font-size:8px;">—</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px;text-align:center;">
+            <div style="color:#6b7280;font-size:8px;font-weight:600;">Juil</div>
+            <div style="color:#374151;font-size:14px;margin:2px 0;">·</div>
+            <div style="color:#6b7280;font-size:8px;">—</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px;text-align:center;">
+            <div style="color:#6b7280;font-size:8px;font-weight:600;">Août</div>
+            <div style="color:#374151;font-size:14px;margin:2px 0;">·</div>
+            <div style="color:#6b7280;font-size:8px;">—</div>
+          </div>
+        </div>
+        <!-- Selected month detail -->
+        <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px;">
+          <div style="color:#c4b5fd;font-size:10px;font-weight:700;margin-bottom:8px;">Mars 2026 — détail</div>
+          <div style="display:flex;justify-content:space-between;color:#9ca3af;font-size:9px;margin-bottom:4px;">
+            <span>19/03 · 82 parts · 6,077€</span><span style="color:white;">-500€</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;color:#9ca3af;font-size:9px;margin-bottom:4px;">
+            <span>19/03 · 1563 parts · 6,077€</span><span style="color:white;">-9 531€</span>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;">
+            <span style="color:#a78bfa;font-size:10px;font-weight:600;">Total mars</span>
+            <span style="color:white;font-size:10px;font-weight:700;">10 031 €</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Grille annuelle + détail</h3>
+      <p>Grille 4×3 des 12 mois en haut (vert = fait, rouge = manqué, gris = futur). Tap sur un mois → détail des transactions en bas.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Timeline list -->
+  <div class="card" data-choice="timeline" onclick="toggleSelect(this)">
+    <div class="card-image" style="font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);border-radius:12px;padding:14px;min-height:300px;">
+      <div style="max-width:240px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="color:#a78bfa;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">2026</span>
+          <span style="color:#6b7280;font-size:10px;">3/6 mois ✓</span>
+        </div>
+        <!-- Timeline items -->
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;">
+            <div style="width:8px;height:8px;background:#10b981;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div style="color:white;font-size:11px;font-weight:600;">Janvier 2026</div>
+              <div style="color:#6ee7b7;font-size:9px;">2 transactions · 9 977 €</div>
+            </div>
+            <div style="color:#10b981;font-size:14px;">✓</div>
+          </div>
+          <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;">
+            <div style="width:8px;height:8px;background:#10b981;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div style="color:white;font-size:11px;font-weight:600;">Février 2026</div>
+              <div style="color:#6ee7b7;font-size:9px;">2 transactions · 1 982 €</div>
+            </div>
+            <div style="color:#10b981;font-size:14px;">✓</div>
+          </div>
+          <div style="background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.5);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;">
+            <div style="width:8px;height:8px;background:#7c3aed;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div style="color:white;font-size:11px;font-weight:600;">Mars 2026</div>
+              <div style="color:#c4b5fd;font-size:9px;">2 transactions · 10 031 €</div>
+            </div>
+            <div style="color:#a78bfa;font-size:14px;">✓</div>
+          </div>
+          <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;">
+            <div style="width:8px;height:8px;background:#ef4444;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div style="color:white;font-size:11px;font-weight:600;">Avril 2026</div>
+              <div style="color:#fca5a5;font-size:9px;">Aucun investissement</div>
+            </div>
+            <div style="color:#ef4444;font-size:12px;">✗</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.1);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;">
+            <div style="width:8px;height:8px;background:#374151;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div style="color:#4b5563;font-size:11px;font-weight:600;">Mai 2026</div>
+              <div style="color:#374151;font-size:9px;">À venir</div>
+            </div>
+            <div style="color:#374151;font-size:12px;">···</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Timeline liste</h3>
+      <p>Liste chronologique de chaque mois avec indicateur coloré. Plus lisible sur mobile, tap → détail du mois dans une page dédiée.</p>
+    </div>
+  </div>
+
+</div>

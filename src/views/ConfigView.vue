@@ -2,10 +2,17 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSettingsStore } from '../stores/settings'
+import { useAuthStore } from '../stores/auth'
 import { fetchETFPrice, clearPriceCache } from '../utils/etf-price'
 
 const settings = useSettingsStore()
+const auth = useAuthStore()
 const router = useRouter()
+
+async function logout() {
+  await auth.logout()
+  router.push('/login')
+}
 
 const tickerInput = ref(settings.ticker)
 const manualPriceInput = ref<number | ''>(settings.manualPrice ?? '')
@@ -126,6 +133,14 @@ function fmtDatetime(iso: string | null): string {
         <p class="text-gray-500 text-xs">Relevé Boursobank au format tabulation</p>
       </div>
       <span class="ml-auto text-gray-500">›</span>
+    </button>
+
+    <!-- Logout -->
+    <button
+      @click="logout"
+      class="w-full py-3 rounded-2xl border border-red-500/30 text-red-400 text-sm font-semibold hover:bg-red-500/10 transition"
+    >
+      Se déconnecter
     </button>
   </div>
 </template>

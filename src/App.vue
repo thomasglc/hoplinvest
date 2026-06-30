@@ -1,5 +1,27 @@
 <script setup lang="ts">
+import { watch } from 'vue'
+import { useRoute } from 'vue-router'
 import BottomNav from './components/layout/BottomNav.vue'
+import { useAuthStore } from './stores/auth'
+import { useInvestmentsStore } from './stores/investments'
+import { useSettingsStore } from './stores/settings'
+
+const route = useRoute()
+const auth = useAuthStore()
+const investments = useInvestmentsStore()
+const settings = useSettingsStore()
+
+// Load user data whenever auth state becomes true (login or session restore)
+watch(() => auth.isAuthenticated, async (authenticated) => {
+  if (authenticated) {
+    await Promise.all([investments.fetchTransactions(), settings.fetchSettings()])
+  } else {
+    investments.clearLocal()
+    settings.clearLocal()
+  }
+}, { immediate: true })
+
+const showNav = () => route.path !== '/login'
 </script>
 
 <template>
@@ -7,6 +29,6 @@ import BottomNav from './components/layout/BottomNav.vue'
     <main class="max-w-md mx-auto px-4 pt-6 pb-24">
       <RouterView />
     </main>
-    <BottomNav />
+    <BottomNav v-if="showNav()" />
   </div>
 </template>
