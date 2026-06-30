@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, shallowRef } from 'vue'
+import { ref, computed } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import type { ApexOptions } from 'apexcharts'
 import { useInvestmentsStore } from '../../stores/investments'
@@ -27,10 +27,10 @@ const currentQuarter = Math.ceil(currentMonth / 3)
 function inPeriod(key: string, p: Period): boolean {
   const [y, m] = key.split('-').map(Number)
   switch (p) {
-    case 'all': return true
-    case 'year': return y === currentYear
+    case 'all':     return true
+    case 'year':    return y === currentYear
     case 'quarter': return y === currentYear && Math.ceil(m / 3) === currentQuarter
-    case 'month': return y === currentYear && m === currentMonth
+    case 'month':   return y === currentYear && m === currentMonth
   }
 }
 
@@ -49,7 +49,7 @@ const series = computed(() => {
   }
 
   const totalGain = investments.totalShares * settings.currentPrice - investments.totalInvested
-  const latestInvested = investments.cumulativeChartData[investments.cumulativeChartData.length - 1]?.invested ?? 1
+  const latestInvested = investments.cumulativeChartData.at(-1)?.invested ?? 1
 
   const gainSeries = data.map(d => ({
     x: d.x,
@@ -62,32 +62,44 @@ const series = computed(() => {
   ]
 })
 
-// Recalculate Y-axis min when period changes so the chart zooms in
-const options = shallowRef<ApexOptions>(buildOptions(0))
+// Computed options so Y-axis min updates reactively with the filter
+const options = computed((): ApexOptions => {
+  const data = filteredData.value
+  const minInvested = data.length ? Math.min(...data.map(d => d.invested)) : 0
+  // For sub-'all' periods, zoom in on Y axis so variation is visible
+  const yMin = period.value === 'all' ? 0 : Math.max(0, Math.floor(minInvested * 0.95))
 
-function buildOptions(yMin: number): ApexOptions {
   const yFormatter = (v: number) =>
     Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${Math.round(v)}€`
 
   return {
-    chart: { type: 'area', stacked: true, background: 'transparent', toolbar: { show: false }, zoom: { enabled: false } },
+    chart: {
+      type: 'area',
+      stacked: true,
+      background: 'transparent',
+      toolbar: { show: false },
+      zoom: { enabled: false },
+      animations: { enabled: true, speed: 300 }
+    },
     colors: ['#7c3aed', '#10b981'],
     fill: { type: 'gradient', gradient: { opacityFrom: 0.65, opacityTo: 0.08 } },
     stroke: { curve: 'smooth', width: 2 },
-    xaxis: { type: 'category', labels: { style: { colors: '#6b7280', fontSize: '10px' } }, axisBorder: { show: false }, axisTicks: { show: false } },
-    yaxis: { min: yMin, labels: { style: { colors: '#6b7280', fontSize: '10px' }, formatter: yFormatter } },
+    xaxis: {
+      type: 'category',
+      labels: { style: { colors: '#6b7280', fontSize: '10px' } },
+      axisBorder: { show: false },
+      axisTicks: { show: false }
+    },
+    yaxis: {
+      min: yMin,
+      labels: { style: { colors: '#6b7280', fontSize: '10px' }, formatter: yFormatter }
+    },
     grid: { borderColor: '#ffffff12' },
     legend: { labels: { colors: '#9ca3af' } },
     tooltip: { theme: 'dark', y: { formatter: (v: number) => `${v.toLocaleString('fr-FR')} €` } },
     dataLabels: { enabled: false }
   }
-}
-
-watch(filteredData, (data) => {
-  const minInvested = data.length ? Math.min(...data.map(d => d.invested)) : 0
-  const yMin = period.value === 'all' ? 0 : Math.max(0, Math.floor(minInvested * 0.95))
-  options.value = buildOptions(yMin)
-}, { immediate: true })
+})
 </script>
 
 <template>
@@ -106,15 +118,20 @@ watch(filteredData, (data) => {
         >{{ f.label }}</button>
       </div>
     </div>
+
+    <!-- :key force le re-mount complet d'ApexCharts à chaque changement de filtre -->
     <VueApexCharts
       v-if="series.length"
+      :key="period"
       type="area"
       height="180"
       :options="options"
       :series="series"
     />
     <p v-else class="text-gray-500 text-sm text-center py-10">
-      {{ investments.cumulativeChartData.length ? 'Aucune donnée sur cette période' : 'Importe des transactions pour voir le graphique' }}
+      {{ investments.cumulativeChartData.length
+        ? 'Aucune transaction sur cette période'
+        : 'Importe des transactions pour voir le graphique' }}
     </p>
   </div>
 </template>
