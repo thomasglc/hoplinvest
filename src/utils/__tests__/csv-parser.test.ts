@@ -48,6 +48,27 @@ describe('parseCSV', () => {
   })
 })
 
+describe('parseCSV — séparateur point-virgule (Boursobank réel)', () => {
+  const HEADER_SC = `libellé;Opération;Place;Date;Qté;Prix d'éxé;Montant brut;Courtage/Prélèvement;Montant net;Devise;`
+  const SAMPLE_SC = `${HEADER_SC}
+iShares MSCI World Swap PEA UCITS ETF - EUR ACC;Achat Comptant;Euronext Paris;09/01/2026;241.0;6.23;-1501.43;-5.26;-1506.69;EUR;
+iShares MSCI World Swap PEA UCITS ETF - EUR ACC;Achat Comptant;Euronext Paris;09/01/2026;77.0;6.23;-479.71;0.0;-479.71;EUR;`
+
+  it('parse un fichier à séparateur ;', () => {
+    expect(parseCSV(SAMPLE_SC)).toHaveLength(2)
+  })
+
+  it('convertit correctement la date avec ;', () => {
+    const [first] = parseCSV(SAMPLE_SC)
+    expect(first.date).toBe('2026-01-09')
+  })
+
+  it('parse les montants sans virgule décimale (format réel export)', () => {
+    const [first] = parseCSV(SAMPLE_SC)
+    expect(first.netAmount).toBeCloseTo(-1506.69, 2)
+  })
+})
+
 describe('deduplicateTransactions', () => {
   const existing: Transaction[] = [
     { id: '1', date: '2026-03-19', quantity: 82, executionPrice: 6.0769 } as Transaction

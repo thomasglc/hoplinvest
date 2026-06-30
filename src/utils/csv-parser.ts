@@ -14,10 +14,13 @@ export function parseCSV(content: string): Transaction[] {
   const lines = content.trim().split('\n')
   if (lines.length < 2) return []
 
+  // Auto-detect separator: semicolon (Boursobank) or tab
+  const sep = lines[0].includes(';') ? ';' : '\t'
+
   return lines
     .slice(1)
     .map((line): Transaction | null => {
-      const cols = line.split('\t')
+      const cols = line.split(sep)
       if (cols.length < 10) return null
       return {
         id: generateId(),
