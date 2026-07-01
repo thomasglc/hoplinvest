@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Icon } from '@iconify/vue'
 import { useInvestmentsStore } from '../../stores/investments'
 import { useSettingsStore } from '../../stores/settings'
+import { usePrivacyMode } from '../../composables/usePrivacyMode'
 
 const investments = useInvestmentsStore()
 const settings = useSettingsStore()
+const { hidden, toggle } = usePrivacyMode()
 
 const portfolioValue = computed(() =>
   settings.currentPrice ? investments.totalShares * settings.currentPrice : null
@@ -27,17 +30,22 @@ function fmt(value: number): string {
 
 <template>
   <div class="glass-card p-5 mb-4">
-    <p class="text-gray-400 text-xs mb-1 uppercase tracking-widest">Valeur du portefeuille</p>
+    <div class="flex items-center justify-between mb-1">
+      <p class="text-gray-400 text-xs uppercase tracking-widest">Valeur du portefeuille</p>
+      <button @click="toggle" class="text-gray-500 hover:text-gray-300 transition-colors">
+        <Icon :icon="hidden ? 'ion:eye-off-outline' : 'ion:eye-outline'" class="text-[18px]" />
+      </button>
+    </div>
     <p class="text-white font-black tracking-tight" style="font-size: 2.25rem; line-height: 1;">
-      {{ portfolioValue !== null ? fmt(portfolioValue) : '—' }}
+      {{ hidden ? '••••••' : (portfolioValue !== null ? fmt(portfolioValue) : '—') }}
     </p>
     <p
       v-if="unrealizedGain !== null"
       class="mt-2 text-sm font-semibold"
       :class="unrealizedGain >= 0 ? 'text-emerald-400' : 'text-red-400'"
     >
-      {{ unrealizedGain >= 0 ? '+' : '' }}{{ fmt(unrealizedGain) }}
-      <span class="opacity-75"> · {{ gainPercent?.toFixed(2) }}%</span>
+      <span v-if="!hidden">{{ unrealizedGain >= 0 ? '+' : '' }}{{ fmt(unrealizedGain) }} · </span>
+      {{ gainPercent?.toFixed(2) }}%
     </p>
     <p v-else class="mt-2 text-xs text-gray-500">
       Configure le prix ETF pour voir la plus-value
