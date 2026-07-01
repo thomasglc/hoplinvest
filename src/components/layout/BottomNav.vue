@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
+import { Icon, addCollection } from '@iconify/vue'
+import ionIcons from '@iconify-json/ion/icons.json'
+
+addCollection(ionIcons)
 
 const route = useRoute()
 
 const tabs = [
-  { path: '/', icon: '📊', label: 'Dashboard' },
-  { path: '/mois', icon: '📅', label: 'Mois' },
-  { path: '/ajouter', icon: '➕', label: 'Ajouter' },
-  { path: '/config', icon: '⚙️', label: 'Config' }
+  { path: '/', icon: 'ion:stats-chart-outline', label: 'Dashboard' },
+  { path: '/mois', icon: 'ion:calendar-outline', label: 'Mois' },
+  { path: '/ajouter', icon: 'ion:add-circle-outline', label: 'Ajouter' },
+  { path: '/config', icon: 'ion:settings-outline', label: 'Config' }
 ]
 </script>
 
@@ -19,10 +23,10 @@ const tabs = [
         v-for="tab in tabs"
         :key="tab.path"
         :to="tab.path"
-        class="flex-1 flex flex-col items-center py-3 gap-0.5 text-[10px] font-medium transition-colors no-underline"
+        class="flex-1 flex flex-col items-center py-3 gap-1 text-[10px] font-medium transition-colors no-underline"
         :class="route.path === tab.path ? 'text-violet-400' : 'text-gray-500'"
       >
-        <span class="text-xl leading-tight">{{ tab.icon }}</span>
+        <Icon :icon="tab.icon" class="text-[22px] leading-none" />
         {{ tab.label }}
       </RouterLink>
     </div>

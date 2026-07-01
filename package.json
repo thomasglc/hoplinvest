@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@directus/sdk": "^22.0.0",
+    "@iconify-json/ion": "^1.2.7",
+    "@iconify/vue": "^5.0.1",
     "@vitejs/plugin-vue": "^6.0.7",
     "apexcharts": "^5.15.2",
     "pinia": "^3.0.4",
