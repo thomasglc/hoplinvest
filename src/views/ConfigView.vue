@@ -4,10 +4,12 @@ import { useRouter } from 'vue-router'
 import { useSettingsStore } from '../stores/settings'
 import { useAuthStore } from '../stores/auth'
 import { fetchETFPrice, clearPriceCache } from '../utils/etf-price'
+import { usePushNotifications } from '../composables/usePushNotifications'
 
 const settings = useSettingsStore()
 const auth = useAuthStore()
 const router = useRouter()
+const push = usePushNotifications()
 
 async function logout() {
   await auth.logout()
@@ -83,6 +85,29 @@ function fmtDatetime(iso: string | null): string {
       </div>
       <p v-if="refreshError" class="text-red-400 text-xs mt-1">Impossible de récupérer le prix</p>
       <p class="text-gray-600 text-xs">Dernière mise à jour : {{ fmtDatetime(settings.lastFetchedAt) }}</p>
+    </div>
+
+    <!-- Push notifications -->
+    <div v-if="push.supported.value" class="glass-card p-4">
+      <p class="text-gray-400 text-xs uppercase tracking-widest mb-3">Rappel hebdomadaire</p>
+      <div v-if="push.status.value === 'subscribed'" class="flex items-center justify-between">
+        <p class="text-green-400 text-sm">Notifications activées</p>
+        <button @click="push.unsubscribe()" class="text-xs text-gray-500 hover:text-red-400 transition">Désactiver</button>
+      </div>
+      <div v-else-if="push.status.value === 'denied'" class="text-red-400 text-sm">
+        Notifications bloquées — autorise-les dans les réglages Safari
+      </div>
+      <div v-else class="space-y-2">
+        <p class="text-gray-300 text-sm">Reçois une notification chaque semaine si tu n'as pas encore enregistré d'investissement.</p>
+        <button
+          @click="push.subscribe()"
+          :disabled="push.loading.value"
+          class="w-full py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-500 disabled:opacity-50 transition"
+        >
+          {{ push.loading.value ? '…' : 'Activer les notifications' }}
+        </button>
+        <p v-if="push.error.value" class="text-red-400 text-xs">{{ push.error.value }}</p>
+      </div>
     </div>
 
     <!-- Import link -->

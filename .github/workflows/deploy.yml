@@ -30,6 +30,7 @@ jobs:
       - run: npm run build
         env:
           VITE_DIRECTUS_URL: ${{ secrets.VITE_DIRECTUS_URL }}
+          VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
           VITE_BASE_URL: /
 
       - uses: actions/upload-pages-artifact@v3
