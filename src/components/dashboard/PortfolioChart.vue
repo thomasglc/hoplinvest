@@ -4,9 +4,11 @@ import VueApexCharts from 'vue3-apexcharts'
 import type { ApexOptions } from 'apexcharts'
 import { useInvestmentsStore } from '../../stores/investments'
 import { useSettingsStore } from '../../stores/settings'
+import { usePrivacyMode } from '../../composables/usePrivacyMode'
 
 const investments = useInvestmentsStore()
 const settings = useSettingsStore()
+const { hidden } = usePrivacyMode()
 
 // Debounce the price used in the chart so an incoming HTTP response
 // doesn't interrupt the initial draw animation (speed: 900ms).
@@ -121,7 +123,7 @@ const options = computed((): ApexOptions => {
   const yMin = Math.max(0, Math.floor(minInvested * 0.90))
 
   const yFormatter = (v: number) =>
-    Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${Math.round(v)}€`
+    hidden.value ? '••••' : (Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${Math.round(v)}€`)
 
   return {
     chart: {
@@ -152,7 +154,7 @@ const options = computed((): ApexOptions => {
     },
     grid: { borderColor: '#ffffff12' },
     legend: { labels: { colors: '#9ca3af' } },
-    tooltip: { theme: 'dark', y: { formatter: (v: number) => `${v.toLocaleString('fr-FR')} €` } },
+    tooltip: { enabled: !hidden.value, theme: 'dark', y: { formatter: (v: number) => `${v.toLocaleString('fr-FR')} €` } },
     dataLabels: { enabled: false }
   }
 })
