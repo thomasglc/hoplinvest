@@ -1,9 +1,11 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useInvestmentsStore } from '../stores/investments'
+import { usePrivacyMode } from '../composables/usePrivacyMode'
 import type { MonthStatus } from '../types'
 
 const investments = useInvestmentsStore()
+const { hidden } = usePrivacyMode()
 const selectedYear = ref(new Date().getFullYear())
 const selectedMonth = ref<number | null>(null)
 
@@ -65,6 +67,8 @@ function fmtDate(dateStr: string): string {
   const [y, m, d] = dateStr.split('-')
   return `${d}/${m}/${y}`
 }
+
+const mask = '••••'
 </script>
 
 <template>
@@ -82,7 +86,7 @@ function fmtDate(dateStr: string): string {
       >›</button>
     </div>
 
-    <!-- 4×3 grid — fills remaining height when no month is selected -->
+    <!-- 4×3 grid -->
     <div
       class="grid grid-cols-4 gap-2 mb-4"
       :class="selectedMonth === null ? 'flex-1 grid-rows-3' : 'shrink-0'"
@@ -101,12 +105,12 @@ function fmtDate(dateStr: string): string {
         <span class="text-white/90 text-base font-bold">{{ MONTHS_FR[m - 1] }}</span>
         <span class="text-2xl leading-tight" :class="statusTextColor(getStatus(m))">{{ statusIcon(getStatus(m)) }}</span>
         <span class="text-xs font-semibold text-white/60 truncate w-full text-center mt-1">
-          {{ monthData(m) ? fmtEur(monthData(m)!.totalInvested).replace(' ', '').replace(' €', '€') : '—' }}
+          {{ hidden ? mask : (monthData(m) ? fmtEur(monthData(m)!.totalInvested).replace(' ', '').replace(' €', '€') : '—') }}
         </span>
       </button>
     </div>
 
-    <!-- Month detail panel / empty state — grows to fill remaining space -->
+    <!-- Month detail panel -->
     <Transition name="slide-up">
       <div v-if="selectedMonth !== null" class="flex-1 min-h-0">
         <div v-if="selectedDetail" class="glass-card p-4 h-full overflow-y-auto">
@@ -122,25 +126,29 @@ function fmtDate(dateStr: string): string {
               class="flex items-center justify-between py-2 border-b border-white/6"
             >
               <div>
-                <p class="text-white text-sm">{{ fmtDate(tx.date) }} · {{ tx.quantity }} parts · {{ tx.executionPrice.toFixed(4) }} €</p>
-                <p v-if="tx.brokerage" class="text-gray-500 text-xs">Courtage {{ fmtEur(Math.abs(tx.brokerage)) }}</p>
+                <p class="text-white text-sm">
+                  {{ fmtDate(tx.date) }} · {{ hidden ? mask : `${tx.quantity} parts · ${tx.executionPrice.toFixed(4)} €` }}
+                </p>
+                <p v-if="tx.brokerage" class="text-gray-500 text-xs">
+                  Courtage {{ hidden ? mask : fmtEur(Math.abs(tx.brokerage)) }}
+                </p>
               </div>
-              <p class="text-white font-semibold text-sm">{{ fmtEur(Math.abs(tx.netAmount)) }}</p>
+              <p class="text-white font-semibold text-sm">{{ hidden ? mask : fmtEur(Math.abs(tx.netAmount)) }}</p>
             </div>
           </div>
 
           <!-- Month totals -->
           <div class="flex justify-between items-center pt-1">
             <span class="text-gray-400 text-xs">Total {{ MONTHS_FULL_FR[selectedMonth! - 1] }}</span>
-            <span class="text-white font-bold">{{ fmtEur(selectedDetail.totalInvested) }}</span>
+            <span class="text-white font-bold">{{ hidden ? mask : fmtEur(selectedDetail.totalInvested) }}</span>
           </div>
           <div v-if="selectedDetail.totalBrokerage" class="flex justify-between items-center mt-1">
             <span class="text-gray-500 text-xs">Courtage total</span>
-            <span class="text-gray-400 text-xs">{{ fmtEur(selectedDetail.totalBrokerage) }}</span>
+            <span class="text-gray-400 text-xs">{{ hidden ? mask : fmtEur(selectedDetail.totalBrokerage) }}</span>
           </div>
         </div>
 
-        <!-- Empty state for selected month with no data -->
+        <!-- Empty state -->
         <div v-else class="glass-card p-6 text-center h-full flex items-center justify-center">
           <p class="text-gray-400 text-sm">Aucune transaction pour {{ MONTHS_FULL_FR[selectedMonth! - 1] }} {{ selectedYear }}</p>
         </div>
