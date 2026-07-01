@@ -115,15 +115,17 @@ const series = computed(() => {
   ]
 })
 
+function yFormatter(v: number): string {
+  if (hidden.value) return '••••'
+  return Math.abs(v) >= 1000 ? `${Math.round(v / 1000)}k€` : `${Math.round(v)}€`
+}
+
 // Computed options so Y-axis min updates reactively with the filter
 const options = computed((): ApexOptions => {
   const data = filteredData.value
   const minInvested = data.length ? Math.min(...data.map(d => d.invested)) : 0
   // Always zoom Y axis so the curve fills the chart — prevents the "spring from bottom" animation glitch
   const yMin = Math.max(0, Math.floor(minInvested * 0.90))
-
-  const yFormatter = (v: number) =>
-    hidden.value ? '••••' : (Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${Math.round(v)}€`)
 
   return {
     chart: {
@@ -155,7 +157,8 @@ const options = computed((): ApexOptions => {
     grid: { borderColor: '#ffffff12' },
     legend: { labels: { colors: '#9ca3af' } },
     tooltip: { enabled: !hidden.value, theme: 'dark', y: { formatter: (v: number) => `${v.toLocaleString('fr-FR')} €` } },
-    dataLabels: { enabled: false }
+    dataLabels: { enabled: false },
+    markers: { size: 3, strokeWidth: 0 }
   }
 })
 </script>
