@@ -152,13 +152,17 @@ const options = computed((): ApexOptions => {
     },
     yaxis: {
       min: yMin,
-      labels: { style: { colors: '#6b7280', fontSize: '10px' }, formatter: yFormatter }
+      forceNiceScale: true,
+      tickAmount: 4,
+      labels: { style: { colors: '#6b7280', fontSize: '10px' }, formatter: yFormatter },
+      axisTicks: { show: true, color: '#ffffff20' },
+      axisBorder: { show: false }
     },
     grid: { borderColor: '#ffffff12' },
     legend: { labels: { colors: '#9ca3af' } },
     tooltip: { enabled: !hidden.value, theme: 'dark', y: { formatter: (v: number) => `${v.toLocaleString('fr-FR')} €` } },
     dataLabels: { enabled: false },
-    markers: { size: 3, strokeWidth: 0 }
+    markers: { size: 0 }
   }
 })
 </script>
