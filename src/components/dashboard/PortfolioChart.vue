@@ -181,7 +181,7 @@ const options = computed((): ApexOptions => {
     <div class="flex-1 min-h-0">
       <VueApexCharts
         v-if="series.length"
-        :key="period"
+        :key="`${period}-${hidden}`"
         type="area"
         height="100%"
         :options="options"
